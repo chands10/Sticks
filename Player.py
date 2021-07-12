@@ -20,8 +20,8 @@ class Player:
             if not 0 <= hand < len(self.hands):
                 raise Exception("Invalid hand {}".format(hand))
         
-            if self.hands[hand] == 0:
-                raise Exception("Hand {} out".format(hand))
+        if self.hands[hand1] == 0 or player2.hands[hand2] == 0:
+            raise Exception("Hand {} out".format(hand))
         
         return player2.receiveTap(hand2, self.hands[hand1])
     
