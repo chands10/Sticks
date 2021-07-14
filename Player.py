@@ -14,12 +14,12 @@ class Player:
     def getPossibleActions(self, player2):
         actions = []
         
-        # swaps
+        # splits
         points = sum(self.hands)
         for i in range(max(0, points - 5 + 1), min(points + 1, 5)):
             current = [i, points - i]
             if current != self.hands:
-                actions.append("swap {} {}".format(current[0], current[1]))
+                actions.append("split {} {}".format(current[0], current[1]))
         
         # taps
         p1HandsAvailable = [i for i, hand in enumerate(self.hands) if hand != 0]
@@ -31,13 +31,13 @@ class Player:
              
         return actions
         
-    def swap(self, new):
+    def split(self, new):
         if new == self.hands:
             raise Exception("No change")
         elif min(new) < 0 or max(new) >= 5:
             raise Exception("Hand out of bounds")
         elif sum(new) != sum(self.hands):
-            raise Exception("Invalid swap")
+            raise Exception("Invalid split")
         
         self.hands = new[:]
     
@@ -71,9 +71,6 @@ class AI(Player):
         self.depth = 3
     
     def getOptimalMove(self, player2):
-        players = [player2, player2]
-        players[self.idx] = self
-        
         def maxValue(players, depth):
             best = (-inf, "")
             
@@ -113,7 +110,10 @@ class AI(Player):
                 return maxValue(players, depth)
             else:
                 return (minValue(players, depth), move)
-            
+                    
+        
+        players = [player2, player2]
+        players[self.idx] = self
         
         move = value(players, 0)
         return move[1]
@@ -128,8 +128,8 @@ def generateSuccessorState(players, turn, other, move):
     move[1] = int(move[1])
     move[2] = int(move[2])
     
-    if move[0] == "swap":
-        players[turn].swap(move[1:])
+    if move[0] == "split":
+        players[turn].split(move[1:])
     elif move[0] == "tap":
         finished = players[turn].tap(players[other], move[1], move[2])
         if finished:

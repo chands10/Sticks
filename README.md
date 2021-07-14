@@ -9,4 +9,4 @@
   - tap [your hand] [opponent hand]
     - left hand is represented by 0
     - right hand is represented by 1
-  - swap [new left hand value] [new right hand value]
+  - split [new left hand value] [new right hand value]
