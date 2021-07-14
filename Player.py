@@ -72,7 +72,7 @@ class AI(Player):
     
     def getOptimalMove(self, player2):
         def maxValue(players, depth, alpha, beta):
-            best = (-inf, "")
+            best = (-inf, None)
             
             moves = players[self.idx].getPossibleActions(players[self.other])
             for move in moves:
@@ -82,9 +82,11 @@ class AI(Player):
                 
                 score = value(newPlayers, depth + 0.5, move, alpha, beta)
                 alpha = max(alpha, score[0])
-                best = max(best, score)
                 
-                if alpha > beta:
+                if score[0] > best[0]: # only update best if new score is explicitly greater than the current to ensure alpha beta pruning works as intended
+                    best = score
+                
+                if alpha >= beta:
                     break
                 
             if len(moves) == 0:
@@ -105,7 +107,7 @@ class AI(Player):
                 beta = min(beta, score)
                 best = min(best, score)
                 
-                if alpha > beta:
+                if alpha >= beta:
                     break                
                 
             if len(moves) == 0:
