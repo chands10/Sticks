@@ -71,7 +71,7 @@ class AI(Player):
         self.depth = 3
     
     def getOptimalMove(self, player2):
-        def maxValue(players, depth):
+        def maxValue(players, depth, alpha, beta):
             best = (-inf, "")
             
             moves = players[self.idx].getPossibleActions(players[self.other])
@@ -79,14 +79,20 @@ class AI(Player):
                 newPlayers = deepcopy(players)
                 if generateSuccessorState(newPlayers, self.idx, self.other, move): # AI wins at this point, no need to travel deeper
                     return (inf, move)
-                best = max(best, value(newPlayers, depth + 0.5, move))
+                
+                score = value(newPlayers, depth + 0.5, move, alpha, beta)
+                alpha = max(alpha, score[0])
+                best = max(best, score)
+                
+                if alpha > beta:
+                    break
                 
             if len(moves) == 0:
                 best = (players[self.idx].evaluation(players[self.other]), None)
             
             return best
         
-        def minValue(players, depth):
+        def minValue(players, depth, alpha, beta):
             best = inf
             
             moves = players[self.other].getPossibleActions(players[self.idx])
@@ -95,21 +101,26 @@ class AI(Player):
                 if generateSuccessorState(newPlayers, self.other, self.idx, move): # opponent wins at this point, no need to travel deeper
                     return -inf
                 
-                best = min(best, value(newPlayers, depth + 0.5)[0])
+                score = value(newPlayers, depth + 0.5, None, alpha, beta)[0]
+                beta = min(beta, score)
+                best = min(best, score)
+                
+                if alpha > beta:
+                    break                
                 
             if len(moves) == 0:
                 best = (players[self.idx].evaluation(players[self.other]), None)
             
             return best
         
-        def value(players, depth, move=None):
+        def value(players, depth, move=None, alpha=-inf, beta=inf):
             if depth == self.depth:
                 return (players[self.idx].evaluation(players[self.other]), move)
             findMax = depth % 1 == 0
             if findMax:
-                return maxValue(players, depth)
+                return maxValue(players, depth, alpha, beta)
             else:
-                return (minValue(players, depth), move)
+                return (minValue(players, depth, alpha, beta), move)
                     
         
         players = [player2, player2]
