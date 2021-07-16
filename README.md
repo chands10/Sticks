@@ -1,5 +1,5 @@
 # Sticks AI
-* A program that uses Minimax search to win a game of sticks
+* A program that uses Minimax (or Expectimax) search to win a game of sticks
 * The rules of Sticks can be found here (with some differentiations noted below): https://en.wikipedia.org/wiki/Chopsticks_(hand_game)
   - Note that this program can only support 2 players (which can be any combination of humans vs AIs)
   - No player can split and have a hand with at least five fingers after the split, or have the same configuration as before the split
