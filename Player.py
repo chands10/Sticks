@@ -84,6 +84,7 @@ class AI(Player):
         self.idx = idx # index in the players list
         self.other = (idx + 1) % 2 # either 0 or 1, opposite of idx
         self.depth = 8 # depth of Minimax search
+        self.minimax = True # False = expectimax
     
     # score of current state
     # prefers opponent to have more fingers out and AI to have less fingers out
@@ -110,7 +111,7 @@ class AI(Player):
                 if score[0] > best[0]: # only update best if new score is explicitly greater than the current to ensure alpha beta pruning works as intended
                     best = score
                 
-                if alpha >= beta:
+                if self.minimax and alpha >= beta: # max player should not infer for expectimax
                     break
                 
             if len(moves) == 0: # should always be a move possible
@@ -120,8 +121,13 @@ class AI(Player):
         
         # find the optimal move for the opponent (the min player) given the current state of the players list, the current depth, and alpha/beta
         # returns min value (move does not matter for opponent)
+        # if self.minimax = False, then will use expectimax instead of minimax to find the expected move for the opponent instead of the optimal minimum move
+        # use expectimax when a player is not playing optimally
         def minValue(players, depth, alpha, beta):
             best = inf
+            
+            if not self.minimax: # take average for expectimax
+                best = 0
             
             moves = players[self.other].getPossibleMoves(players[self.idx])
             for move in moves:
@@ -131,10 +137,13 @@ class AI(Player):
                     return -inf
                 
                 score = value(newPlayers, depth + 1, None, alpha, beta)[0]
-                beta = min(beta, score)
-                best = min(best, score)
+                if self.minimax:
+                    beta = min(beta, score)
+                    best = min(best, score)
+                else: # expectimax
+                    best += score / len(moves)
                 
-                if alpha >= beta:
+                if alpha >= beta: # will only happen when alpha = inf for expectimax since beta will always be inf
                     break                
                 
             if len(moves) == 0: # should always be a move possible
@@ -163,6 +172,7 @@ class AI(Player):
     
 
 # perform a move given the players list, the index of the current turn, the index of the opponent (other), and the move performed
+# updates variable players
 # return True if player wins after move, else return False    
 def generateSuccessorState(players, turn, other, move):
     move = move.split()
