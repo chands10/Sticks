@@ -79,12 +79,15 @@ class Player:
     
 # AI Player, extends Human Player
 class AI(Player):
-    def __init__(self, idx):
+    def __init__(self, idx, minimax=True):
         super().__init__()
         self.idx = idx # index in the players list
         self.other = (idx + 1) % 2 # either 0 or 1, opposite of idx
         self.depth = 8 # depth of Minimax search
-        self.minimax = True # False = expectimax
+        self.minimax = minimax # False = expectimax
+        
+        if not self.minimax:
+            self.depth = 6 # slower since no alpha beta pruning
     
     # score of current state
     # prefers opponent to have more fingers out and AI to have less fingers out
@@ -103,7 +106,7 @@ class AI(Player):
                 # create a copy of players that will be updated in generateSuccessorState
                 newPlayers = deepcopy(players)
                 if generateSuccessorState(newPlayers, self.idx, self.other, move): # AI wins at this point, no need to travel deeper
-                    return (inf, move)
+                    return (100, move)
                 
                 score = value(newPlayers, depth + 1, move, alpha, beta)
                 alpha = max(alpha, score[0])
@@ -111,7 +114,7 @@ class AI(Player):
                 if score[0] > best[0]: # only update best if new score is explicitly greater than the current to ensure alpha beta pruning works as intended
                     best = score
                 
-                if self.minimax and alpha >= beta: # max player should not infer for expectimax
+                if self.minimax and alpha >= beta:
                     break
                 
             if len(moves) == 0: # should always be a move possible
@@ -134,7 +137,7 @@ class AI(Player):
                 newPlayers = deepcopy(players)
                 # create a copy of players that will be updated in generateSuccessorState
                 if generateSuccessorState(newPlayers, self.other, self.idx, move): # opponent wins at this point, no need to travel deeper
-                    return -inf
+                    return -100
                 
                 score = value(newPlayers, depth + 1, None, alpha, beta)[0]
                 if self.minimax:
@@ -143,9 +146,9 @@ class AI(Player):
                 else: # expectimax
                     best += score / len(moves)
                 
-                if alpha >= beta: # will only happen when alpha = inf for expectimax since beta will always be inf
-                    break                
-                
+                if self.minimax and alpha >= beta:
+                    break
+
             if len(moves) == 0: # should always be a move possible
                 best = (players[self.idx].evaluation(players[self.other]), None)
             

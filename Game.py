@@ -7,10 +7,10 @@ class Game:
         self.ais = [False, False] # True if player is AI
         
         if numHumans <= 1:
-            self.players[1] = AI(1)
+            self.players[1] = AI(1, False)
             self.ais[1] = True
         if numHumans == 0:
-            self.players[0] = AI(0)
+            self.players[0] = AI(0, False)
             self.ais[0] = True
         
         self.turn = 0 # player first in list makes move first
