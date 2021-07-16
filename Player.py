@@ -83,7 +83,7 @@ class AI(Player):
         super().__init__()
         self.idx = idx # index in the players list
         self.other = (idx + 1) % 2 # either 0 or 1, opposite of idx
-        self.depth = 3 # depth of Minimax search
+        self.depth = 8 # depth of Minimax search
     
     # score of current state
     # prefers opponent to have more fingers out and AI to have less fingers out
@@ -104,7 +104,7 @@ class AI(Player):
                 if generateSuccessorState(newPlayers, self.idx, self.other, move): # AI wins at this point, no need to travel deeper
                     return (inf, move)
                 
-                score = value(newPlayers, depth + 0.5, move, alpha, beta)
+                score = value(newPlayers, depth + 1, move, alpha, beta)
                 alpha = max(alpha, score[0])
                 
                 if score[0] > best[0]: # only update best if new score is explicitly greater than the current to ensure alpha beta pruning works as intended
@@ -130,7 +130,7 @@ class AI(Player):
                 if generateSuccessorState(newPlayers, self.other, self.idx, move): # opponent wins at this point, no need to travel deeper
                     return -inf
                 
-                score = value(newPlayers, depth + 0.5, None, alpha, beta)[0]
+                score = value(newPlayers, depth + 1, None, alpha, beta)[0]
                 beta = min(beta, score)
                 best = min(best, score)
                 
@@ -147,7 +147,7 @@ class AI(Player):
             if depth == self.depth: # return evaluation function
                 return (players[self.idx].evaluation(players[self.other]), move)
             
-            findMax = (depth % 1 == 0) # at max level of tree
+            findMax = (depth % 2 == 0) # at max level of tree
             if findMax:
                 return maxValue(players, depth, alpha, beta)
             else:
